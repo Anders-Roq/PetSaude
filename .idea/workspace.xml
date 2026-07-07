@@ -9,8 +9,17 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="717e00e2-b96d-4fe1-aa39-eef9640b4fb4" name="Changes" comment="Primeiro commit.&#10;Telas: Main, Login, Cadastro, Home.">
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    <list default="true" id="717e00e2-b96d-4fe1-aa39-eef9640b4fb4" name="Changes" comment="Segundo commit.&#10;Novas telas de Main, Login, Cadastro, Home.&#10;Telas de Vacina, Consulta, Home, Cadastro Pet, Classes e outras arrumações.">
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_10_06_2026_13_49_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_10_06_2026_13_49_[Changes]1/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_10_06_2026_13_49__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_10_06_2026_13_49__Changes_1.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,7 +29,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[PhysicalDevice::serial=ZF5242RD9Z]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -188,7 +197,15 @@
       <option name="project" value="LOCAL" />
       <updated>1780533305678</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Segundo commit.&#10;Novas telas de Main, Login, Cadastro, Home.&#10;Telas de Vacina, Consulta, Home, Cadastro Pet, Classes e outras arrumações.">
+      <option name="closed" value="true" />
+      <created>1781179808430</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1781179808430</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -204,7 +221,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Primeiro commit.&#10;Telas: Main, Login, Cadastro, Home." />
-    <option name="LAST_COMMIT_MESSAGE" value="Primeiro commit.&#10;Telas: Main, Login, Cadastro, Home." />
+    <MESSAGE value="Segundo commit.&#10;Novas telas de Main, Login, Cadastro, Home.&#10;Telas de Vacina, Consulta, Home, Cadastro Pet, Classes e outras arrumações." />
+    <option name="LAST_COMMIT_MESSAGE" value="Segundo commit.&#10;Novas telas de Main, Login, Cadastro, Home.&#10;Telas de Vacina, Consulta, Home, Cadastro Pet, Classes e outras arrumações." />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">
