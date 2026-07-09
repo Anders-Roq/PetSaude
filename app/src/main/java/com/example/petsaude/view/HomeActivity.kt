@@ -5,9 +5,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,36 +28,53 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.petsaude.db.fb.FBDatabase
+import com.example.petsaude.model.Pet
 import com.example.petsaude.ui.theme.*
+import com.example.petsaude.viewmodel.HomeViewModel
+import com.example.petsaude.viewmodel.HomeViewModelFactory
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 
 class HomeActivity : ComponentActivity() {
+
+    //val fbDB = remember { FBDatabase() }
+    val viewModel: HomeViewModel by viewModels {
+        HomeViewModelFactory(FBDatabase())
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
+
             PetSaudeTheme {
-                HomePage(
+
+                  HomePage(
+                    pets = viewModel.pets,
+                    nomeUsuario = viewModel.usuario?.nome,
                     onConsultasClick = { startActivity(Intent(this, ConsultasActivity::class.java)) },
                     onVacinasClick   = { startActivity(Intent(this, VacinasActivity::class.java)) },
                     onAddPetClick    = { startActivity(Intent(this, RegisterPetActivity::class.java)) },
                     onProfileClick   = { startActivity(Intent(this, ProfileActivity::class.java)) },
-                    onLogoutClick    = {
-                        val i = Intent(this, MainActivity::class.java)
-                        i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(i)
-                    }
+                    onLogoutClick    = { Firebase.auth.signOut() } // PetSaudeApp cuida da navegação para MainActivity
                 )
             }
         }
     }
+
 }
 
 @Preview(showBackground = true)
 @Composable
 fun HomePage(
+    pets: List<Pet> = emptyList(),
+    nomeUsuario: String? = null,
     onConsultasClick: () -> Unit = {},
     onVacinasClick:   () -> Unit = {},
-    onRotinasClick:   () -> Unit = {},
     onAddPetClick:    () -> Unit = {},
     onProfileClick:   () -> Unit = {},
     onLogoutClick:    () -> Unit = {}
@@ -75,7 +95,7 @@ fun HomePage(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "PetSaúde",
+                text = nomeUsuario?.let { "Olá, $it" } ?: "PetSaúde",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = Teal500
@@ -117,49 +137,89 @@ fun HomePage(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
 
-                Card(
-                    modifier = Modifier.size(width = 140.dp, height = 160.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = White),
-                    elevation = CardDefaults.cardElevation(1.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize().padding(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                items(pets) { pet ->
+                    Card(
+                        modifier = Modifier.size(width = 140.dp, height = 160.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = White),
+                        elevation = CardDefaults.cardElevation(1.dp)
                     ) {
-                        Box(
-                            modifier = Modifier.size(60.dp).background(Teal100, CircleShape),
-                            contentAlignment = Alignment.Center
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
                         ) {
-                            Text("🐕", fontSize = 30.sp)
+                            Box(
+                                modifier = Modifier
+                                    .size(60.dp)
+                                    .background(Teal100, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    if (pet.especie == "Gato") "🐈" else "🐕",
+                                    fontSize = 30.sp
+                                )
+                            }
+
+                            Spacer(Modifier.height(8.dp))
+
+                            Text(
+                                pet.nomePet,
+                                fontWeight = FontWeight.Bold,
+                                color = Navy900
+                            )
+
+                            Text(
+                                pet.raca,
+                                fontSize = 11.sp,
+                                color = GrayText
+                            )
                         }
-                        Spacer(Modifier.height(8.dp))
-                        Text("Thor", fontWeight = FontWeight.Bold, color = Navy900)
-                        Text("Labrador", fontSize = 11.sp, color = GrayText)
                     }
                 }
 
-                Card(
-                    modifier = Modifier.size(width = 140.dp, height = 160.dp).clickable(onClick = onAddPetClick),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = GrayBorder.copy(alpha = 0.3f)),
-                    elevation = CardDefaults.cardElevation(0.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize().padding(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                item {
+                    Card(
+                        modifier = Modifier
+                            .size(width = 140.dp, height = 160.dp)
+                            .clickable(onClick = onAddPetClick),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = GrayBorder.copy(alpha = 0.3f)
+                        ),
+                        elevation = CardDefaults.cardElevation(0.dp)
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = null, tint = GrayText, modifier = Modifier.size(32.dp))
-                        Spacer(Modifier.height(8.dp))
-                        Text("Adicionar", color = GrayText, fontSize = 13.sp)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                Icons.Default.Add,
+                                contentDescription = null,
+                                tint = GrayText,
+                                modifier = Modifier.size(32.dp)
+                            )
+
+                            Spacer(Modifier.height(8.dp))
+
+                            Text(
+                                "Adicionar",
+                                color = GrayText,
+                                fontSize = 13.sp
+                            )
+                        }
                     }
                 }
             }
-
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(

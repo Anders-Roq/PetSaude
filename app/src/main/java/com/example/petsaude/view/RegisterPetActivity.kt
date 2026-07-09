@@ -1,6 +1,5 @@
 package com.example.petsaude.view
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,6 +23,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.petsaude.db.fb.FBDatabase
+import com.example.petsaude.db.fb.toFBPet
+import com.example.petsaude.model.Pet
 import com.example.petsaude.ui.theme.*
 
 class RegisterPetActivity : ComponentActivity() {
@@ -33,10 +35,9 @@ class RegisterPetActivity : ComponentActivity() {
         setContent {
             PetSaudeTheme {
                 RegisterPetPage(
-                    onSaveClick = {
-                        val intent = Intent(this, LoginActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
+                    onSaveClick = { pet ->
+                        FBDatabase().add(pet.toFBPet())
+                        finish() // volta para a HomeActivity, que já escuta os pets via listener
                     },
                     onBackClick = { finish() }
                 )
@@ -48,17 +49,23 @@ class RegisterPetActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun RegisterPetPage(
-    onSaveClick: () -> Unit = {},
+    onSaveClick: (Pet) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
-    var nome by rememberSaveable { mutableStateOf("Thor") }
+    var nome by rememberSaveable { mutableStateOf("") }
     var especie by rememberSaveable { mutableStateOf("Cachorro") }
-    var raca by rememberSaveable { mutableStateOf("Labrador Retriever") }
-    var idade by rememberSaveable { mutableStateOf("3 anos") }
-    var peso by rememberSaveable { mutableStateOf("28 kg") }
+    var raca by rememberSaveable { mutableStateOf("") }
+    var idade by rememberSaveable { mutableStateOf("") }
+    var peso by rememberSaveable { mutableStateOf("") }
     var sexo by rememberSaveable { mutableStateOf("Macho") }
-    var cor by rememberSaveable { mutableStateOf("Amarelo") }
-    var microchip by rememberSaveable { mutableStateOf("985112345678901") }
+    var cor by rememberSaveable { mutableStateOf("") }
+    var microchip by rememberSaveable { mutableStateOf("") }
+
+    var tentouSalvar by rememberSaveable { mutableStateOf(false) }
+
+    val nomeInvalido = tentouSalvar && nome.isBlank()
+    val racaInvalida = tentouSalvar && raca.isBlank()
+    val especieInvalida = tentouSalvar && especie.isBlank()
 
     Box(
         modifier = Modifier
@@ -117,10 +124,14 @@ fun RegisterPetPage(
             OutlinedTextField(
                 value = nome,
                 onValueChange = { nome = it },
-                label = { Text("Nome do pet") },
+                label = { Text("Nome do pet *") },
                 leadingIcon = { Icon(Icons.Default.Pets, null, tint = Teal500) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
+                isError = nomeInvalido,
+                supportingText = {
+                    if (nomeInvalido) Text("Informe o nome do pet", color = MaterialTheme.colorScheme.error)
+                },
                 shape = RoundedCornerShape(12.dp),
                 colors = petFieldColors()
             )
@@ -144,7 +155,7 @@ fun RegisterPetPage(
                             )
                             .border(
                                 1.5.dp,
-                                if (selected) Teal500 else GrayBorder,
+                                if (selected) Teal500 else if (especieInvalida) MaterialTheme.colorScheme.error else GrayBorder,
                                 RoundedCornerShape(12.dp)
                             )
                             .clickable { especie = label },
@@ -162,16 +173,28 @@ fun RegisterPetPage(
                     }
                 }
             }
+            if (especieInvalida) {
+                Text(
+                    "Selecione a espécie",
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = raca,
                 onValueChange = { raca = it },
-                label = { Text("Raça") },
+                label = { Text("Raça *") },
                 leadingIcon = { Icon(Icons.Default.Info, null, tint = Teal500) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
+                isError = racaInvalida,
+                supportingText = {
+                    if (racaInvalida) Text("Informe a raça", color = MaterialTheme.colorScheme.error)
+                },
                 shape = RoundedCornerShape(12.dp),
                 colors = petFieldColors()
             )
@@ -261,7 +284,22 @@ fun RegisterPetPage(
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = onSaveClick,
+                onClick = {
+                    tentouSalvar = true
+                    if (nome.isNotBlank() && raca.isNotBlank() && especie.isNotBlank()) {
+                        val pet = Pet(
+                            nomePet = nome,
+                            especie = especie,
+                            raca = raca,
+                            idade = idade.filter { it.isDigit() }.toIntOrNull() ?: 0,
+                            peso = peso.replace(",", ".").filter { it.isDigit() || it == '.' }.toFloatOrNull() ?: 0f,
+                            sexo = sexo,
+                            pelagem = cor,
+                            microchip = microchip.ifBlank { null }
+                        )
+                        onSaveClick(pet)
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -277,4 +315,3 @@ fun RegisterPetPage(
         }
     }
 }
-

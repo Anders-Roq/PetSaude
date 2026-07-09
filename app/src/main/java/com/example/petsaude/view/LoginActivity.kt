@@ -2,6 +2,7 @@ package com.example.petsaude.view
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -29,8 +30,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.petsaude.ui.theme.*
 import com.example.petsaude.R
+import com.example.petsaude.ui.theme.*
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,11 +42,7 @@ class LoginActivity : ComponentActivity() {
         setContent {
             PetSaudeTheme {
                 LoginPage(
-                    onLoginClick = {
-                        val intent = Intent(this, HomeActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
-                    },
+                    onLoginClick = { email, senha -> logar(email, senha) },
                     onBackClick = { finish() },
                     onForgotPasswordClick = {},
                     onRegisterClick = {
@@ -53,19 +52,31 @@ class LoginActivity : ComponentActivity() {
             }
         }
     }
+
+    private fun logar(email: String, senha: String) {
+        Firebase.auth.signInWithEmailAndPassword(email, senha)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Login OK!", Toast.LENGTH_LONG).show()
+                    // PetSaudeApp detecta a sessão ativa e leva para a HomeActivity.
+                } else {
+                    Toast.makeText(this, "Login FALHOU!", Toast.LENGTH_LONG).show()
+                }
+            }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun LoginPage(
-    onLoginClick: () -> Unit = {},
+    onLoginClick: (email: String, senha: String) -> Unit = { _, _ -> },
     onBackClick: () -> Unit = {},
     onForgotPasswordClick: () -> Unit = {},
     onRegisterClick: () -> Unit = {}
 ) {
-    var email by rememberSaveable { mutableStateOf("joao@email.com") }
-    var password by rememberSaveable { mutableStateOf("••••••••") }
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    var email by rememberSaveable { mutableStateOf("") }
+    var senha by rememberSaveable { mutableStateOf("") }
+    var senhaVisivel by rememberSaveable { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -136,16 +147,16 @@ fun LoginPage(
 
             // Password field
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = senha,
+                onValueChange = { senha = it },
                 label = { Text("Senha") },
                 leadingIcon = {
                     Icon(Icons.Default.Lock, contentDescription = null, tint = Teal500)
                 },
                 trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    IconButton(onClick = { senhaVisivel = !senhaVisivel }) {
                         Icon(
-                            if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            if (senhaVisivel) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = null,
                             tint = GrayText
                         )
@@ -154,7 +165,7 @@ fun LoginPage(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = if (senhaVisivel) VisualTransformation.None else PasswordVisualTransformation(),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Teal500,
                     focusedLabelColor = Teal500,
@@ -174,7 +185,7 @@ fun LoginPage(
             Spacer(modifier = Modifier.height(20.dp))
 
             Button(
-                onClick = onLoginClick,
+                onClick = { onLoginClick(email, senha) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),

@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".view.PetSaudeApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -16,6 +17,7 @@
             android:name=".view.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
+            android:launchMode="singleTask"
             android:theme="@style/Theme.PetSaude">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,17 +25,15 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.LoginActivity"        android:exported="false" />
-        <activity android:name=".view.RegisterActivity"     android:exported="false" />
-        <activity android:name=".view.RegisterPetActivity"  android:exported="false" />
-        <activity android:name=".view.HomeActivity"         android:exported="false" />
-        <activity android:name=".view.ConsultasActivity"    android:exported="false" />
-        <activity android:name=".view.VacinasActivity"      android:exported="false" />
-        <activity android:name=".view.RotinasActivity"      android:exported="false" />
-        <activity android:name=".view.ProfileActivity"      android:exported="false" />
-        <activity android:name=".view.AddVacinaActivity"    android:exported="false" />
-        <activity android:name=".view.AddConsultaActivity"  android:exported="false" />
-        <activity android:name=".view.AddRotinaActivity"    android:exported="false" />
+        <activity android:name=".view.LoginActivity"        android:exported="false" android:launchMode="singleTask" />
+        <activity android:name=".view.RegisterActivity"     android:exported="false" android:launchMode="singleTask" />
+        <activity android:name=".view.RegisterPetActivity"  android:exported="false" android:launchMode="singleTask" />
+        <activity android:name=".view.HomeActivity"         android:exported="false" android:launchMode="singleTask" />
+        <activity android:name=".view.ConsultasActivity"    android:exported="false" android:launchMode="singleTask" />
+        <activity android:name=".view.VacinasActivity"      android:exported="false" android:launchMode="singleTask" />
+        <activity android:name=".view.ProfileActivity"      android:exported="false" android:launchMode="singleTask" />
+        <activity android:name=".view.AddVacinaActivity"    android:exported="false" android:launchMode="singleTask" />
+        <activity android:name=".view.AddConsultaActivity"  android:exported="false" android:launchMode="singleTask" />
 
     </application>
 

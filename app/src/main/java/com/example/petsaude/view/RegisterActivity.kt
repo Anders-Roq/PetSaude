@@ -1,7 +1,7 @@
 package com.example.petsaude.view
 
-import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -26,7 +26,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.petsaude.db.fb.FBDatabase
+import com.example.petsaude.db.fb.toFBUsuario
+import com.example.petsaude.model.Usuario
 import com.example.petsaude.ui.theme.*
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 class RegisterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,29 +40,43 @@ class RegisterActivity : ComponentActivity() {
         setContent {
             PetSaudeTheme {
                 RegisterPage(
-                    onRegisterClick = {
-                        val intent = Intent(this, RegisterPetActivity::class.java)
-                        startActivity(intent)
+                    onRegisterClick = { nome, email, telefone, senha ->
+                        registrarUsuario(nome, email, telefone, senha)
                     },
                     onBackClick = { finish() }
                 )
             }
         }
     }
+
+    private fun registrarUsuario(nome: String, email: String, telefone: String, senha: String) {
+        Firebase.auth.createUserWithEmailAndPassword(email, senha)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val usuario = Usuario(nome = nome, email = email, telefone = telefone, senha = "")
+                    //FBDatabase().register(usuario.toFBUsuario())
+                    Toast.makeText(this, "Registro OK!", Toast.LENGTH_LONG).show()
+                    // Não chamamos finish() nem navegamos manualmente:
+                    // o PetSaudeApp detecta o login e leva para a HomeActivity.
+                } else {
+                    Toast.makeText(this, "Registro FALHOU!", Toast.LENGTH_LONG).show()
+                }
+            }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun RegisterPage(
-    onRegisterClick: () -> Unit = {},
+    onRegisterClick: (nome: String, email: String, telefone: String, senha: String) -> Unit = { _, _, _, _ -> },
     onBackClick: () -> Unit = {}
 ) {
-    var nome by rememberSaveable { mutableStateOf("João Silva") }
-    var email by rememberSaveable { mutableStateOf("joao@email.com") }
-    var telefone by rememberSaveable { mutableStateOf("(81) 99999-0000") }
-    var password by rememberSaveable { mutableStateOf("") }
-    var confirmPassword by rememberSaveable { mutableStateOf("") }
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    var nome by rememberSaveable { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
+    var telefone by rememberSaveable { mutableStateOf("") }
+    var senha by rememberSaveable { mutableStateOf("") }
+    var confirmarSenha by rememberSaveable { mutableStateOf("") }
+    var senhaVisivel by rememberSaveable { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -142,14 +161,14 @@ fun RegisterPage(
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = senha,
+                onValueChange = { senha = it },
                 label = { Text("Senha") },
                 leadingIcon = { Icon(Icons.Default.Lock, null, tint = Teal500) },
                 trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    IconButton(onClick = { senhaVisivel = !senhaVisivel }) {
                         Icon(
-                            if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            if (senhaVisivel) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             null, tint = GrayText
                         )
                     }
@@ -157,15 +176,15 @@ fun RegisterPage(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = if (senhaVisivel) VisualTransformation.None else PasswordVisualTransformation(),
                 colors = petFieldColors()
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it },
+                value = confirmarSenha,
+                onValueChange = { confirmarSenha = it },
                 label = { Text("Confirmar senha") },
                 leadingIcon = { Icon(Icons.Default.Lock, null, tint = Teal500) },
                 modifier = Modifier.fillMaxWidth(),
@@ -178,7 +197,7 @@ fun RegisterPage(
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = onRegisterClick,
+                onClick = { onRegisterClick(nome, email, telefone, senha) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
