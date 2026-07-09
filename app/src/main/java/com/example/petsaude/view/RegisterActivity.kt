@@ -54,8 +54,8 @@ class RegisterActivity : ComponentActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val usuario = Usuario(nome = nome, email = email, telefone = telefone, senha = "")
-                    //FBDatabase().register(usuario.toFBUsuario())
-                    Toast.makeText(this, "Registro OK!", Toast.LENGTH_LONG).show()
+                    FBDatabase().register(usuario.toFBUsuario())
+                    Toast.makeText(this, "Registro realizado!", Toast.LENGTH_LONG).show()
                     // Não chamamos finish() nem navegamos manualmente:
                     // o PetSaudeApp detecta o login e leva para a HomeActivity.
                 } else {

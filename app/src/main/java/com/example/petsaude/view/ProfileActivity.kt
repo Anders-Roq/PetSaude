@@ -23,15 +23,41 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.petsaude.db.fb.FBDatabase
 import com.example.petsaude.ui.theme.*
+import androidx.activity.viewModels
+import com.example.petsaude.viewmodel.ProfileViewModel
+import com.example.petsaude.viewmodel.ProfileViewModelFactory
+import com.example.petsaude.model.Usuario
 
-class ProfileActivity : ComponentActivity() {
+class ProfileActivity : ComponentActivity(){
+
+    private val viewModel: ProfileViewModel by viewModels {
+        ProfileViewModelFactory(FBDatabase())
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             PetSaudeTheme {
-                ProfilePage(onBackClick = { finish() })
+                ProfilePage(
+                    usuario = viewModel.usuario,
+
+                    onSalvarClick = { nome, email, telefone ->
+
+                        viewModel.salvar(
+                            nome,
+                            email,
+                            telefone
+                        )
+
+                        finish()
+                    },
+
+                    onBackClick = { finish() }
+                )
             }
         }
     }
@@ -39,10 +65,22 @@ class ProfileActivity : ComponentActivity() {
 
 @Preview(showBackground = true)
 @Composable
-fun ProfilePage(onBackClick: () -> Unit = {}) {
-    var nome by rememberSaveable { mutableStateOf("João Silva") }
-    var email by rememberSaveable { mutableStateOf("joao@email.com") }
-    var telefone by rememberSaveable { mutableStateOf("(81) 99999-0000") }
+fun ProfilePage(
+    usuario: Usuario? = null,
+    onSalvarClick: (String, String, String) -> Unit = { _, _, _ -> },
+    onBackClick: () -> Unit = {}
+) {
+    var nome by rememberSaveable(usuario) {
+        mutableStateOf(usuario?.nome ?: "")
+    }
+
+    var email by rememberSaveable(usuario) {
+        mutableStateOf(usuario?.email ?: "")
+    }
+
+    var telefone by rememberSaveable(usuario) {
+        mutableStateOf(usuario?.telefone ?: "")
+    }
 
     Column(
         modifier = Modifier
@@ -145,7 +183,13 @@ fun ProfilePage(onBackClick: () -> Unit = {}) {
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = { /* Em um app real, salvaria os dados aqui */ onBackClick() },
+                onClick = {
+                    onSalvarClick(
+                        nome,
+                        email,
+                        telefone
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),

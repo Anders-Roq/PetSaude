@@ -60,7 +60,7 @@ class HomeActivity : ComponentActivity() {
                     onVacinasClick   = { startActivity(Intent(this, VacinasActivity::class.java)) },
                     onAddPetClick    = { startActivity(Intent(this, RegisterPetActivity::class.java)) },
                     onProfileClick   = { startActivity(Intent(this, ProfileActivity::class.java)) },
-                    onLogoutClick    = { Firebase.auth.signOut() } // PetSaudeApp cuida da navegação para MainActivity
+                    onLogoutClick    = { Firebase.auth.signOut() }
                 )
             }
         }

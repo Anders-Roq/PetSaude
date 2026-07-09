@@ -82,4 +82,15 @@ class FBDatabase {
         db.collection("usuarios").document(uid).collection("pets")
             .document(pet.id!!).delete()
     }
+
+    fun updateUsuario(usuario: FBUsuario) {
+        if (auth.currentUser == null)
+            throw RuntimeException("Usuário não está logado!")
+
+        val uid = auth.currentUser!!.uid
+
+        db.collection("usuarios")
+            .document(uid)
+            .set(usuario)
+    }
 }
