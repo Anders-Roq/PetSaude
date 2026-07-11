@@ -54,13 +54,26 @@ class LoginActivity : ComponentActivity() {
     }
 
     private fun logar(email: String, senha: String) {
-        Firebase.auth.signInWithEmailAndPassword(email, senha)
+        // 💡 CORREÇÃO: Remove espaços em branco do início/fim que quebram o SDK do Firebase
+        val emailLimpo = email.trim()
+        val senhaLimpa = senha.trim()
+
+        if (emailLimpo.isEmpty() || senhaLimpa.isEmpty()) {
+            Toast.makeText(this, "Por favor, preencha todos os campos.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        Firebase.auth.signInWithEmailAndPassword(emailLimpo, senhaLimpa)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Login OK!", Toast.LENGTH_LONG).show()
-                    // PetSaudeApp detecta a sessão ativa e leva para a HomeActivity.
+                    val intent = Intent(this, HomeActivity::class.java)
+                    startActivity(intent)
+                    finish()
                 } else {
-                    Toast.makeText(this, "Login FALHOU!", Toast.LENGTH_LONG).show()
+                    // 💡 MELHORIA: Mostra no Toast o motivo real para você identificar o erro na hora
+                    val erroDetalhado = task.exception?.localizedMessage ?: "Erro desconhecido"
+                    Toast.makeText(this, "Falha: $erroDetalhado", Toast.LENGTH_LONG).show()
                 }
             }
     }

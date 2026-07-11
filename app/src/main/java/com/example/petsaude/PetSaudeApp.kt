@@ -2,6 +2,7 @@ package com.example.petsaude
 
 import android.app.Application
 import android.content.Intent
+import androidx.core.content.ContextCompat.startActivity
 import com.example.petsaude.view.HomeActivity
 import com.example.petsaude.view.LoginActivity
 import com.google.firebase.Firebase

@@ -13,7 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import android.content.Intent
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,19 +21,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.petsaude.db.fb.FBVacina
+import com.example.petsaude.db.fb.FBDatabase
 import com.example.petsaude.ui.theme.*
-
-data class Vacina(
-    val nome: String,
-    val aplicacao: String,
-    val proxima: String,
-    val lote: String,
-    val veterinario: String,
-    val status: String
-)
 
 class VacinasActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,17 +39,14 @@ class VacinasActivity : ComponentActivity() {
     }
 }
 
-@Preview(showBackground = true)
 @Composable
 fun VacinasPage(onBackClick: () -> Unit = {}) {
     val context = LocalContext.current
-    val vacinas = listOf(
-        Vacina("V10 (Múltipla)",      "09/12/2025", "09/12/2026", "VAC-2025-1234", "Dra. Maria Santos", "Aplicada"),
-        Vacina("Antirrábica",         "14/01/2026", "14/01/2027", "RAB-2026-5678", "Dr. João Silva",    "Aplicada"),
-        Vacina("Leishmaniose",        "31/05/2026", "-",           "-",             "-",                 "Pendente"),
-        Vacina("Gripe Canina",        "19/11/2023", "19/05/2026", "GRIP-2025-9012","Dra. Maria Santos", "Vencida"),
-        Vacina("Giardia",             "27/02/2026", "27/02/2027", "GIA-2026-3344", "Dr. João Silva",    "Aplicada"),
-    )
+    var vacinas by remember { mutableStateOf<List<FBVacina>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        FBDatabase().listenVacinas { vacinas = it }
+    }
 
     Column(
         modifier = Modifier
@@ -65,7 +54,6 @@ fun VacinasPage(onBackClick: () -> Unit = {}) {
             .background(GrayBg)
             .statusBarsPadding()
     ) {
-        // Top bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -76,25 +64,17 @@ fun VacinasPage(onBackClick: () -> Unit = {}) {
             IconButton(onClick = onBackClick) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Navy900)
             }
-            Text(
-                text = "Vacinas",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Navy900,
-                modifier = Modifier.weight(1f)
-            )
+            Text("Vacinas", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Navy900, modifier = Modifier.weight(1f))
             Button(
                 onClick = { context.startActivity(Intent(context, AddVacinaActivity::class.java)) },
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = GreenApplied),
-                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
                 modifier = Modifier.height(36.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(4.dp))
                 Text("Nova", fontSize = 13.sp)
             }
-            Spacer(Modifier.width(8.dp))
         }
 
         LazyColumn(
@@ -103,14 +83,33 @@ fun VacinasPage(onBackClick: () -> Unit = {}) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(vacinas) { v ->
-                VacinaCard(v)
+                VacinaCard(
+                    v = v,
+                    onEditar = { vacina ->
+                        val intent = Intent(context, AddVacinaActivity::class.java).apply {
+                            putExtra("id", vacina.id)
+                            putExtra("petId", vacina.petId)         // 👈 ENVIANDO ID DO PET PARA EDIÇÃO
+                            putExtra("nomePet", vacina.nomePet)     // 👈 ENVIANDO NOME DO PET PARA EDIÇÃO
+                            putExtra("nome", vacina.nome)
+                            putExtra("aplicacao", vacina.aplicacao)
+                            putExtra("proxima", vacina.proxima)
+                            putExtra("lote", vacina.lote)
+                            putExtra("veterinario", vacina.veterinario)
+                            putExtra("status", vacina.status)
+                        }
+                        context.startActivity(intent)
+                    },
+                    onExcluir = { vacina ->
+                        FBDatabase().removeVacina(vacina)
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun VacinaCard(v: Vacina) {
+fun VacinaCard(v: FBVacina, onEditar: (FBVacina) -> Unit, onExcluir: (FBVacina) -> Unit) {
     val (statusColor, statusBg, statusIcon) = when (v.status) {
         "Aplicada" -> Triple(GreenApplied, Color(0xFFDCFCE7), Icons.Default.CheckCircle)
         "Pendente" -> Triple(OrangeWarning, Color(0xFFFEF3C7), Icons.Default.Warning)
@@ -131,9 +130,9 @@ fun VacinaCard(v: Vacina) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(statusIcon, contentDescription = null, tint = statusColor, modifier = Modifier.size(20.dp))
+                    Icon(statusIcon, null, tint = statusColor, modifier = Modifier.size(20.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text(v.nome, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Navy900)
+                    Text(v.nome, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Navy900)
                 }
                 Box(
                     modifier = Modifier
@@ -145,7 +144,20 @@ fun VacinaCard(v: Vacina) {
                 }
             }
 
-            Spacer(Modifier.height(10.dp))
+            // 👈 LINHA ADICIONADA: Exibe o nome do Pet com o ícone de patinha abaixo do título
+            if (v.nomePet.isNotBlank()) {
+                Spacer(Modifier.height(4.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(start = 28.dp) // Alinha bonitinho embaixo do texto do título
+                ) {
+                    Icon(Icons.Default.Pets, null, tint = Teal500, modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(text = v.nomePet, fontSize = 13.sp, color = Teal500, fontWeight = FontWeight.Medium)
+                }
+            }
+
+            Spacer(Modifier.height(12.dp))
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                 Column {
@@ -158,12 +170,36 @@ fun VacinaCard(v: Vacina) {
                 }
             }
 
-            if (v.lote != "-") {
-                Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(8.dp))
+
+            if (v.lote.isNotBlank()) {
                 Text("Lote: ${v.lote}", fontSize = 12.sp, color = GrayText)
             }
-            if (v.veterinario != "-") {
+            if (v.veterinario.isNotBlank()) {
                 Text("Vet: ${v.veterinario}", fontSize = 12.sp, color = GrayText)
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            // Botões de Ação
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedButton(onClick = { onEditar(v) }, modifier = Modifier.weight(1f)) {
+                    Icon(Icons.Default.Edit, null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Editar", fontSize = 13.sp)
+                }
+                Button(
+                    onClick = { onExcluir(v) },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Icon(Icons.Default.Delete, null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Excluir", fontSize = 13.sp)
+                }
             }
         }
     }

@@ -15,6 +15,11 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import android.content.Intent
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,16 +30,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.petsaude.db.fb.FBConsulta
+import com.example.petsaude.db.fb.FBDatabase
 import com.example.petsaude.ui.theme.*
+import com.example.petsaude.view.MapActivity
 
-data class Consulta(
-    val titulo: String,
-    val veterinario: String,
-    val data: String,
-    val hora: String,
-    val local: String,
-    val status: String
-)
+
+
 
 class ConsultasActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,12 +54,17 @@ class ConsultasActivity : ComponentActivity() {
 @Composable
 fun ConsultasPage(onBackClick: () -> Unit = {}) {
     val context = LocalContext.current
-    val consultas = listOf(
-        Consulta("Consulta de rotina",   "Dr. João Silva",    "14/05/2026", "14:00", "Clínica PetVida",            "Agendada"),
-        Consulta("Exame de sangue",      "Dra. Maria Santos", "09/04/2026", "10:30", "Hospital Veterinário Central","Concluída"),
-        Consulta("Vacinação anual",      "Dr. João Silva",    "19/06/2026", "16:00", "Clínica PetVida",            "Agendada"),
-        Consulta("Consulta dermatológica","Dra. Ana Lima",    "22/03/2026", "09:00", "Clínica AnimaVet",           "Concluída"),
-    )
+    var consultas by remember {
+        mutableStateOf<List<FBConsulta>>(emptyList())
+    }
+    LaunchedEffect(Unit) {
+
+        FBDatabase().listenConsultas(
+            onChange = {
+                consultas = it
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -102,20 +109,35 @@ fun ConsultasPage(onBackClick: () -> Unit = {}) {
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(consultas) { c ->
-                ConsultaCard(c)
+            items(consultas) { consulta ->
+                ConsultaCard(
+                    c = consulta,
+                    onEditar = {consulta ->
+                        val intent = Intent(context, AddConsultaActivity::class.java)
+                        intent.putExtra("id", consulta.id)
+                        intent.putExtra("petId", consulta.petId)
+                        intent.putExtra("nomePet", consulta.nomePet)
+                        intent.putExtra("veterinario", consulta.veterinario)
+                        intent.putExtra("motivo", consulta.motivo)
+                        intent.putExtra("data", consulta.data)
+                        intent.putExtra("horario", consulta.horario)
+                        intent.putExtra("endereco", consulta.endereco)
+                        context.startActivity(intent)
+                    },
+                    onExcluir = {
+                        FBDatabase().removeConsulta(it)
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun ConsultaCard(c: Consulta) {
-    val (statusColor, statusBg) = when (c.status) {
-        "Agendada" -> Teal500 to Teal100
-        "Concluída" -> GrayText to GrayBorder
-        else        -> OrangeWarning to Color(0xFFFEF3C7)
-    }
+fun ConsultaCard(c: FBConsulta, onEditar: (FBConsulta) -> Unit, onExcluir: (FBConsulta) -> Unit) {
+    val statusColor = Teal500
+    val statusBg = Teal100
+    val context = LocalContext.current
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -129,31 +151,75 @@ fun ConsultaCard(c: Consulta) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(c.titulo, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Navy900)
+                Text(c.motivo, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Navy900)
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(6.dp))
                         .background(statusBg)
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
-                    Text(c.status, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = statusColor)
+                    Text("Agendada", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = statusColor)
                 }
             }
             Text(c.veterinario, fontSize = 13.sp, color = GrayText)
             Spacer(Modifier.height(10.dp))
             InfoRow(Icons.Default.CalendarMonth, c.data)
             Spacer(Modifier.height(4.dp))
-            InfoRow(Icons.Default.Schedule, c.hora)
+            InfoRow(Icons.Default.Schedule, c.horario)
             Spacer(Modifier.height(4.dp))
-            InfoRow(Icons.Default.LocationOn, c.local)
+            InfoRow(Icons.Default.LocationOn, c.endereco)
             Spacer(Modifier.height(10.dp))
             TextButton(
-                onClick = {},
+                onClick = {
+                    val intent = Intent(context, MapActivity::class.java).apply {
+                        putExtra(MapActivity.EXTRA_ENDERECO, c.endereco)
+                        putExtra(MapActivity.EXTRA_TITULO,   c.veterinario)
+                    }
+                    context.startActivity(intent)
+                },
+
                 contentPadding = PaddingValues(0.dp)
             ) {
                 Icon(Icons.Default.Map, contentDescription = null, tint = Teal500, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(4.dp))
                 Text("Ver no mapa", color = Teal500, fontSize = 13.sp)
+            }
+            Spacer(Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        onEditar(c)
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(
+                        Icons.Default.Edit,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text("Editar")
+                }
+                Button(
+                    onClick = {
+                        onExcluir(c)
+                    },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text("Excluir")
+                }
             }
         }
     }

@@ -1,15 +1,25 @@
 package com.example.petsaude.model
 
-import java.time.LocalDate
-import java.time.LocalTime
+
 
 data class Consulta(
 
-    val id: Int = 0,
-    val petId: Int,
-    val nomeVeteriario: String,
-    val motivo: String,
-    val data: LocalDate,
-    val horario: LocalTime
+    val id: String = "",
+
+    val petId: String = "",
+
+    val nomePet: String = "",
+
+    val veterinario: String = "",
+
+    val motivo: String = "",
+
+    val data: String = "",
+
+    val horario: String = "",
+
+    val endereco: String = ""
 
 )
+
+
