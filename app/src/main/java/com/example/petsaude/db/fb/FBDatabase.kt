@@ -6,7 +6,6 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
-import com.google.firebase.firestore.QuerySnapshot
 
 
 class FBDatabase {
@@ -22,20 +21,24 @@ class FBDatabase {
     private val auth = Firebase.auth
     private val db = Firebase.firestore
     private var petsListReg: ListenerRegistration? = null
+    private var usuarioListReg: ListenerRegistration? = null
     private var listener: Listener? = null
 
     init {
         auth.addAuthStateListener { firebaseAuth ->
             if (firebaseAuth.currentUser == null) {
                 petsListReg?.remove()
+                usuarioListReg?.remove()
                 listener?.onUsuarioSignOut()
                 return@addAuthStateListener
             }
 
-            val refCurrUsuario = db.collection("usuarios").document(firebaseAuth.currentUser!!.uid)
+            val refCurrUsuario = db.collection("usuarios").
+            document(firebaseAuth.currentUser!!.uid)
 
-            refCurrUsuario.get().addOnSuccessListener {
-                it.toObject(FBUsuario::class.java)?.let { usuario ->
+            usuarioListReg = refCurrUsuario.addSnapshotListener { snapshot, ex ->
+                if (ex != null) return@addSnapshotListener
+                snapshot?.toObject(FBUsuario::class.java)?.let { usuario ->
                     listener?.onUsuarioLoaded(usuario)
                 }
             }

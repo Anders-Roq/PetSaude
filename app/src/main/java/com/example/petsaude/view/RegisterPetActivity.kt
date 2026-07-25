@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,15 +30,50 @@ import com.example.petsaude.model.Pet
 import com.example.petsaude.ui.theme.*
 
 class RegisterPetActivity : ComponentActivity() {
+
+    companion object {
+        const val EXTRA_PET_ID = "extra_pet_id"
+        const val EXTRA_NOME = "extra_nome"
+        const val EXTRA_ESPECIE = "extra_especie"
+        const val EXTRA_RACA = "extra_raca"
+        const val EXTRA_IDADE = "extra_idade"
+        const val EXTRA_PESO = "extra_peso"
+        const val EXTRA_SEXO = "extra_sexo"
+        const val EXTRA_PELAGEM = "extra_pelagem"
+        const val EXTRA_MICROCHIP = "extra_microchip"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Se veio um petId, estamos editando um pet já existente
+        val petId = intent.getStringExtra(EXTRA_PET_ID)
+        val petExistente = petId?.let {
+            Pet(
+                id = it,
+                nomePet = intent.getStringExtra(EXTRA_NOME) ?: "",
+                especie = intent.getStringExtra(EXTRA_ESPECIE) ?: "Cachorro",
+                raca = intent.getStringExtra(EXTRA_RACA) ?: "",
+                idade = intent.getIntExtra(EXTRA_IDADE, 0),
+                peso = intent.getFloatExtra(EXTRA_PESO, 0f),
+                sexo = intent.getStringExtra(EXTRA_SEXO) ?: "Macho",
+                pelagem = intent.getStringExtra(EXTRA_PELAGEM) ?: "",
+                microchip = intent.getStringExtra(EXTRA_MICROCHIP)
+            )
+        }
+
         setContent {
             PetSaudeTheme {
                 RegisterPetPage(
+                    petParaEditar = petExistente,
                     onSaveClick = { pet ->
                         FBDatabase().add(pet.toFBPet())
                         finish() // volta para a HomeActivity, que já escuta os pets via listener
+                    },
+                    onDeleteClick = { pet ->
+                        FBDatabase().remove(pet.toFBPet())
+                        finish()
                     },
                     onBackClick = { finish() }
                 )
@@ -49,19 +85,24 @@ class RegisterPetActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun RegisterPetPage(
+    petParaEditar: Pet? = null,
     onSaveClick: (Pet) -> Unit = {},
+    onDeleteClick: (Pet) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
-    var nome by rememberSaveable { mutableStateOf("") }
-    var especie by rememberSaveable { mutableStateOf("Cachorro") }
-    var raca by rememberSaveable { mutableStateOf("") }
-    var idade by rememberSaveable { mutableStateOf("") }
-    var peso by rememberSaveable { mutableStateOf("") }
-    var sexo by rememberSaveable { mutableStateOf("Macho") }
-    var cor by rememberSaveable { mutableStateOf("") }
-    var microchip by rememberSaveable { mutableStateOf("") }
+    val emEdicao = petParaEditar != null
+
+    var nome by rememberSaveable { mutableStateOf(petParaEditar?.nomePet ?: "") }
+    var especie by rememberSaveable { mutableStateOf(petParaEditar?.especie ?: "Cachorro") }
+    var raca by rememberSaveable { mutableStateOf(petParaEditar?.raca ?: "") }
+    var idade by rememberSaveable { mutableStateOf(petParaEditar?.idade?.takeIf { it > 0 }?.toString() ?: "") }
+    var peso by rememberSaveable { mutableStateOf(petParaEditar?.peso?.takeIf { it > 0f }?.toString() ?: "") }
+    var sexo by rememberSaveable { mutableStateOf(petParaEditar?.sexo ?: "Macho") }
+    var cor by rememberSaveable { mutableStateOf(petParaEditar?.pelagem ?: "") }
+    var microchip by rememberSaveable { mutableStateOf(petParaEditar?.microchip ?: "") }
 
     var tentouSalvar by rememberSaveable { mutableStateOf(false) }
+    var mostrarDialogoExcluir by rememberSaveable { mutableStateOf(false) }
 
     val nomeInvalido = tentouSalvar && nome.isBlank()
     val racaInvalida = tentouSalvar && raca.isBlank()
@@ -81,19 +122,19 @@ fun RegisterPetPage(
         ) {
             // Top bar
             IconButton(onClick = onBackClick) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Voltar", tint = Navy900)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Navy900)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Cadastrar Pet",
+                text = if (emEdicao) "Editar Pet" else "Cadastrar Pet",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 color = Navy900
             )
             Text(
-                text = "Adicione as informações do seu pet",
+                text = if (emEdicao) "Atualize as informações do seu pet" else "Adicione as informações do seu pet",
                 fontSize = 13.sp,
                 color = GrayText
             )
@@ -288,6 +329,7 @@ fun RegisterPetPage(
                     tentouSalvar = true
                     if (nome.isNotBlank() && raca.isNotBlank() && especie.isNotBlank()) {
                         val pet = Pet(
+                            id = petParaEditar?.id ?: java.util.UUID.randomUUID().toString(),
                             nomePet = nome,
                             especie = especie,
                             raca = raca,
@@ -308,10 +350,53 @@ fun RegisterPetPage(
             ) {
                 Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Salvar e Continuar", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(
+                    if (emEdicao) "Salvar Alterações" else "Salvar e Continuar",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
+            if (emEdicao) {
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedButton(
+                    onClick = { mostrarDialogoExcluir = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                    border = androidx.compose.foundation.BorderStroke(1.5.dp, MaterialTheme.colorScheme.error)
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Remover Pet", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
         }
+    }
+
+    if (mostrarDialogoExcluir && petParaEditar != null) {
+        AlertDialog(
+            onDismissRequest = { mostrarDialogoExcluir = false },
+            title = { Text("Remover ${petParaEditar.nomePet}?") },
+            text = { Text("Essa ação não pode ser desfeita. As consultas e vacinas já registradas para este pet não serão apagadas automaticamente.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    mostrarDialogoExcluir = false
+                    onDeleteClick(petParaEditar)
+                }) {
+                    Text("Remover", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { mostrarDialogoExcluir = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }

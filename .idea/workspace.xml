@@ -9,26 +9,20 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="717e00e2-b96d-4fe1-aa39-eef9640b4fb4" name="Changes" comment="Cadastro funcionando corretamente.">
-      <change beforePath="$PROJECT_DIR$/.gradle/9.4.1/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.4.1/executionHistory/executionHistory.bin" afterDir="false" />
+    <list default="true" id="717e00e2-b96d-4fe1-aa39-eef9640b4fb4" name="Changes" comment="Cadastro, edição e remoção de consultas e vacinas.">
       <change beforePath="$PROJECT_DIR$/.gradle/9.4.1/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.4.1/executionHistory/executionHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/9.4.1/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.4.1/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/9.4.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.4.1/fileHashes/fileHashes.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/9.4.1/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.4.1/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/file-system.probe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/app/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/PetSaudeApp.kt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/db/fb/FBDatabase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/db/fb/FBDatabase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/model/Consulta.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/model/Consulta.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/view/AddConsultaActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/view/AddConsultaActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/view/AddVacinaActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/view/AddVacinaActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/view/ConsultasActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/view/ConsultasActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/view/LoginActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/view/LoginActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/view/VacinasActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/view/VacinasActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/view/HomeActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/view/HomeActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/view/RegisterPetActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/petsaude/view/RegisterPetActivity.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -85,6 +79,9 @@
   }
 }</component>
   <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="$USER_HOME$/.gradle/wrapper/dists/gradle-9.4.1-bin/arn2x92ynaizyzdaamcbpbhtj/gradle-9.4.1" javaHome="$APPLICATION_HOME_DIR$/jbr" gradleVersion="9.4.1" />
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6,
   &quot;fromUser&quot;: false
@@ -97,25 +94,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Notification.DisplayName-DoNotAsk-git.branch.operation.error&quot;: &quot;Could Not Merge origin/main&quot;,
-    &quot;Notification.DoNotAsk-git.branch.operation.error&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/marcelo/Área de trabalho/PetSaude-main&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Android App.app.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Notification.DisplayName-DoNotAsk-git.branch.operation.error": "Could Not Merge origin/main",
+    "Notification.DoNotAsk-git.branch.operation.error": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "com.google.services.firebase.aqiPopupShown": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/marcelo/Área de trabalho"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="android.template.-463680016">
       <recent name="com.example.petsaude" />
@@ -241,7 +238,15 @@
       <option name="project" value="LOCAL" />
       <updated>1783641365606</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Cadastro, edição e remoção de consultas e vacinas.">
+      <option name="closed" value="true" />
+      <created>1783780677161</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1783780677161</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -261,7 +266,8 @@
     <MESSAGE value="Conexão com o Firebase e Authentication SDK adcionado no projeto." />
     <MESSAGE value="Conexão com o Firebase e Authentication SDK adcionado no projeto, juntamente com o Firestore.&#10;Modificação nas clases de Usuario e Pet.&#10;Criação do database.&#10;Modificação das activities" />
     <MESSAGE value="Cadastro funcionando corretamente." />
-    <option name="LAST_COMMIT_MESSAGE" value="Cadastro funcionando corretamente." />
+    <MESSAGE value="Cadastro, edição e remoção de consultas e vacinas." />
+    <option name="LAST_COMMIT_MESSAGE" value="Cadastro, edição e remoção de consultas e vacinas." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -280,12 +286,12 @@
       <map>
         <entry key="com.example.petsaude">
           <value>
-            <CheckInfo lastCheckTimestamp="1783561422102" />
+            <CheckInfo lastCheckTimestamp="1783780537355" />
           </value>
         </entry>
         <entry key="com.example.petsaude.test">
           <value>
-            <CheckInfo lastCheckTimestamp="1783561422094" />
+            <CheckInfo lastCheckTimestamp="1783780537359" />
           </value>
         </entry>
       </map>
