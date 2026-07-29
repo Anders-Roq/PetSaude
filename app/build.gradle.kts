@@ -22,6 +22,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         val mapsKey = project.findProperty("MAPS_API_KEY")?.toString() ?: ""
         manifestPlaceholders["MAPS_API_KEY"] = mapsKey
+
+        val dogsApiKey = project.findProperty("DOGS_API_KEY")?.toString() ?: ""
+        buildConfigField("String", "DOGS_API_KEY", "\"$dogsApiKey\"")
     }
 
     buildTypes {
@@ -40,6 +43,7 @@ android {
     buildFeatures {
         compose = true
         viewBinding = true
+        buildConfig = true
     }
 }
 

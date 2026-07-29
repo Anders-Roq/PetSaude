@@ -26,8 +26,6 @@ import androidx.compose.ui.unit.sp
 import com.example.petsaude.db.fb.FBDatabase
 import com.example.petsaude.ui.theme.*
 import androidx.activity.viewModels
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import com.example.petsaude.viewmodel.ProfileViewModel
 import com.example.petsaude.viewmodel.ProfileViewModelFactory
 import com.example.petsaude.model.Usuario
@@ -98,7 +96,7 @@ fun ProfilePage(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBackClick) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Navy900)
+                Icon(Icons.Default.ArrowBack, contentDescription = "Voltar", tint = Navy900)
             }
             Text(
                 text = "Meu Perfil",

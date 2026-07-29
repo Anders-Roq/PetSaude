@@ -6,6 +6,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.QuerySnapshot
 
 
 class FBDatabase {
@@ -33,8 +34,7 @@ class FBDatabase {
                 return@addAuthStateListener
             }
 
-            val refCurrUsuario = db.collection("usuarios").
-            document(firebaseAuth.currentUser!!.uid)
+            val refCurrUsuario = db.collection("usuarios").document(firebaseAuth.currentUser!!.uid)
 
             usuarioListReg = refCurrUsuario.addSnapshotListener { snapshot, ex ->
                 if (ex != null) return@addSnapshotListener

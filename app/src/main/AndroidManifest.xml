@@ -23,6 +23,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PetSaude">
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+
+
         <activity
             android:name=".view.MainActivity"
             android:exported="true"
@@ -45,6 +50,7 @@
         <activity android:name=".view.AddVacinaActivity"    android:exported="false" android:launchMode="singleTask" />
         <activity android:name=".view.AddConsultaActivity"  android:exported="false" android:launchMode="singleTask" />
         <activity android:name=".view.MapActivity"          android:exported="false" android:launchMode="singleTask" />
+        <activity android:name=".view.DogCompatibilityActivity" android:exported="false" android:launchMode="singleTask" />
 
     </application>
 

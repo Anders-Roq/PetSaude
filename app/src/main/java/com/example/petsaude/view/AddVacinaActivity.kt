@@ -117,7 +117,7 @@ fun AddVacinaPage(
     var lote by rememberSaveable { mutableStateOf(loteInicial ?: "") }
     var veterinario by rememberSaveable { mutableStateOf(veterinarioInicial ?: "") }
 
-    // 🛠️ ESTADOS DO DROPDOWN DO PET
+    // ESTADOS DO DROPDOWN DO PET
     var expanded by remember { mutableStateOf(false) }
     var petSelecionado by remember {
         mutableStateOf<FBPet?>(
@@ -131,7 +131,7 @@ fun AddVacinaPage(
     }
     var listaPets by remember { mutableStateOf(listOf<FBPet>()) }
 
-    // 🛠️ BUSCA OS PETS DO FIREBASE
+    // BUSCA OS PETS DO FIREBASE
     LaunchedEffect(Unit) {
         FBDatabase().getPets {
             listaPets = it
@@ -169,7 +169,7 @@ fun AddVacinaPage(
             SectionLabel("INFORMAÇÕES DA VACINA")
             Spacer(Modifier.height(12.dp))
 
-            // 🛠️ DROPDOWN DE SELEÇÃO DO PET
+            // DROPDOWN DE SELEÇÃO DO PET
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded }

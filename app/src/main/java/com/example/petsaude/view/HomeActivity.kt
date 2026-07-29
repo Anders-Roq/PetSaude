@@ -8,38 +8,17 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Vaccines
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,19 +30,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.petsaude.db.fb.FBDatabase
 import com.example.petsaude.model.Pet
-import com.example.petsaude.ui.theme.GrayBg
-import com.example.petsaude.ui.theme.GrayBorder
-import com.example.petsaude.ui.theme.GrayText
-import com.example.petsaude.ui.theme.GreenApplied
-import com.example.petsaude.ui.theme.Navy900
-import com.example.petsaude.ui.theme.PetSaudeTheme
-import com.example.petsaude.ui.theme.Teal100
-import com.example.petsaude.ui.theme.Teal500
-import com.example.petsaude.ui.theme.White
+import com.example.petsaude.ui.theme.*
 import com.example.petsaude.viewmodel.HomeViewModel
 import com.example.petsaude.viewmodel.HomeViewModelFactory
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 
 class HomeActivity : ComponentActivity() {
 
@@ -80,7 +53,7 @@ class HomeActivity : ComponentActivity() {
 
             PetSaudeTheme {
 
-                HomePage(
+                  HomePage(
                     pets = viewModel.pets,
                     nomeUsuario = viewModel.usuario?.nome,
                     onConsultasClick = { startActivity(Intent(this, ConsultasActivity::class.java)) },
@@ -88,6 +61,7 @@ class HomeActivity : ComponentActivity() {
                     onAddPetClick    = { startActivity(Intent(this, RegisterPetActivity::class.java)) },
                     onPetClick       = { pet -> abrirEdicaoPet(pet) },
                     onProfileClick   = { startActivity(Intent(this, ProfileActivity::class.java)) },
+                    onCompatibilidadeClick = { startActivity(Intent(this, DogCompatibilityActivity::class.java)) },
                     onLogoutClick    = { Firebase.auth.signOut() }
                 )
             }
@@ -120,6 +94,7 @@ fun HomePage(
     onAddPetClick:    () -> Unit = {},
     onPetClick:       (Pet) -> Unit = {},
     onProfileClick:   () -> Unit = {},
+    onCompatibilidadeClick: () -> Unit = {},
     onLogoutClick:    () -> Unit = {}
 ) {
     Column(
@@ -148,7 +123,7 @@ fun HomePage(
                     Icon(Icons.Default.AccountCircle, contentDescription = "Perfil", tint = Navy900)
                 }
                 IconButton(onClick = onLogoutClick) {
-                    Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Sair", tint = Navy900)
+                    Icon(Icons.Default.ExitToApp, contentDescription = "Sair", tint = Navy900)
                 }
             }
         }
@@ -294,6 +269,17 @@ fun HomePage(
                 iconBg = Color(0xFFDCFCE7),
                 iconColor = GreenApplied,
                 onClick = onVacinasClick
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            MenuCard(
+                icon = Icons.Default.Pets,
+                title = "Este pet é bom para mim?",
+                description = "Veja o perfil de comportamento de uma raça",
+                iconBg = Color(0xFFFFE4CC),
+                iconColor = Color(0xFFFF8A3D),
+                onClick = onCompatibilidadeClick
             )
 
         }
