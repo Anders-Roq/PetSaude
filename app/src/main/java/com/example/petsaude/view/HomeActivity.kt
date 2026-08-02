@@ -18,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,7 +34,6 @@ import com.example.petsaude.viewmodel.HomeViewModel
 import com.example.petsaude.viewmodel.HomeViewModelFactory
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 
 class HomeActivity : ComponentActivity() {
@@ -61,7 +59,7 @@ class HomeActivity : ComponentActivity() {
                     onAddPetClick    = { startActivity(Intent(this, RegisterPetActivity::class.java)) },
                     onPetClick       = { pet -> abrirEdicaoPet(pet) },
                     onProfileClick   = { startActivity(Intent(this, ProfileActivity::class.java)) },
-                    onCompatibilidadeClick = { startActivity(Intent(this, DogCompatibilityActivity::class.java)) },
+                    onCompatibilidadeClick = { startActivity(Intent(this, PetCompatibilityActivity::class.java)) },
                     onLogoutClick    = { Firebase.auth.signOut() }
                 )
             }
