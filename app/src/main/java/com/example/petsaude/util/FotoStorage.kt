@@ -23,6 +23,7 @@ object FotoStorage {
         context.contentResolver.openInputStream(origem)?.use { input ->
             destino.outputStream().use { output -> input.copyTo(output) }
         }
+        corrigirRotacao(destino)
         return destino.absolutePath
     }
 
@@ -71,5 +72,4 @@ object FotoStorage {
 
         }
     }
-
 }

@@ -14,7 +14,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -35,6 +34,8 @@ import com.example.petsaude.viewmodel.HomeViewModelFactory
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 
 class HomeActivity : ComponentActivity() {
 
@@ -121,7 +122,7 @@ fun HomePage(
                     Icon(Icons.Default.AccountCircle, contentDescription = "Perfil", tint = Navy900)
                 }
                 IconButton(onClick = onLogoutClick) {
-                    Icon(Icons.Default.ExitToApp, contentDescription = "Sair", tint = Navy900)
+                    Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Sair", tint = Navy900)
                 }
             }
         }
@@ -286,13 +287,13 @@ fun HomePage(
     }
 }
 
-@Composable
-fun StatItem(number: String, label: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(number, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = White)
-        Text(label, fontSize = 10.sp, color = White.copy(alpha = 0.8f))
-    }
-}
+//@Composable
+//fun StatItem(number: String, label: String) {
+//    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+//        Text(number, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = White)
+//        Text(label, fontSize = 10.sp, color = White.copy(alpha = 0.8f))
+//    }
+//}
 
 @Composable
 fun MenuCard(

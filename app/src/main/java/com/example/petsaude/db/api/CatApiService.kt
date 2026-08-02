@@ -37,7 +37,7 @@ sealed class ResultadoBuscaGato {
 
 class CatApiService(context: Context) {
 
-    private val apiKey = BuildConfig.DOGS_API_KEY
+    private val apiKey = BuildConfig.NINJA_API_KEY
     private val prefs = context.applicationContext
         .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
