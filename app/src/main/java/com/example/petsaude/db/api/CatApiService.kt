@@ -43,6 +43,7 @@ class CatApiService(context: Context) {
 
     companion object {
         private const val PREFS_NAME = "cat_compat_cache"
+
     }
 
     fun buscarRaca(nomeRaca: String): ResultadoBuscaGato {
