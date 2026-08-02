@@ -368,6 +368,7 @@ fun AddConsultaPage(
                         if (petSelecionado == null) {
                             return@Button
                         }
+                        // 💡 ALTERADO: Agora chama a função genérica que decide se vai criar ou editar
                         onSalvarClick(
                             consultaId,
                             petSelecionado!!,
@@ -392,6 +393,7 @@ fun AddConsultaPage(
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
+                        // 💡 ALTERADO: O texto muda dinamicamente se for uma edição ou um novo cadastro
                         text = if (consultaId.isNullOrBlank()) "Confirmar Agendamento" else "Salvar Alterações",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold

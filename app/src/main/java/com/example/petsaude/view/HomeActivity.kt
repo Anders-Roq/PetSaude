@@ -181,9 +181,11 @@ fun HomePage(
                                     .background(Teal100, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(
-                                    if (pet.especie == "Gato") "🐈" else "🐕",
-                                    fontSize = 30.sp
+                                PetAvatarImage(
+                                    petId = pet.id,
+                                    especie = pet.especie,
+                                    tamanho = 60.dp,
+                                    shape = RoundedCornerShape(50)
                                 )
                             }
 

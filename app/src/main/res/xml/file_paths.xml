@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Onde a câmera grava a foto temporária antes de copiarmos para o armazenamento final do app -->
+    <cache-path name="fotos_temp" path="fotos_temp/" />
+</paths>
