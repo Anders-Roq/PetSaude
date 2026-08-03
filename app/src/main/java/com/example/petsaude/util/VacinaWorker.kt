@@ -1,6 +1,8 @@
 package com.example.petsaude.util
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.petsaude.db.fb.FBDatabase
@@ -10,6 +12,7 @@ class VacinaWorker(
     params: WorkerParameters
 ) : CoroutineWorker(context, params) {
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun doWork(): Result {
         // Busca vacinas no Firebase em segundo plano
         FBDatabase().getPets { _ ->

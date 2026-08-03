@@ -1,6 +1,7 @@
 package com.example.petsaude.view
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,12 +22,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.petsaude.ui.theme.*
 import com.example.petsaude.R
+import com.example.petsaude.util.VacinaWorker
+import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 1. Solicita permissão de Notificação para Android 13+ (API 33+)
+        solicitarPermissaoNotificacao()
+
+        // 2. Agenda a checagem diária automática de vacinas em segundo plano
+        agendarVerificacaoVacinas()
+
         enableEdgeToEdge()
         setContent {
             PetSaudeTheme {
@@ -41,6 +54,24 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    private fun solicitarPermissaoNotificacao() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 101)
+        }
+    }
+
+    private fun agendarVerificacaoVacinas() {
+        // Executa uma vez a cada 24 horas
+        val workRequest = PeriodicWorkRequestBuilder<VacinaWorker>(1, TimeUnit.DAYS).build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "VerificacaoVacinasDiaria",
+            ExistingPeriodicWorkPolicy.KEEP, // Mantém o agendamento se já existir
+            workRequest
+        )
+    }
+
 }
 
 @Preview(showBackground = true)

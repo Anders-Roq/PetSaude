@@ -6,26 +6,70 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.Vaccines
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import com.example.petsaude.db.fb.FBDatabase
 import com.example.petsaude.db.fb.FBPet
 import com.example.petsaude.db.fb.FBVacina
-import com.example.petsaude.ui.theme.*
+import com.example.petsaude.db.network.RetrofitClient
+import com.example.petsaude.db.network.VacinaAplicadaApi
+import com.example.petsaude.db.network.VacinaCatalogoApi
+import com.example.petsaude.ui.theme.GrayText
+import com.example.petsaude.ui.theme.GreenApplied
+import com.example.petsaude.ui.theme.Navy900
+import com.example.petsaude.ui.theme.PetSaudeTheme
+import com.example.petsaude.ui.theme.SectionLabel
+import com.example.petsaude.ui.theme.Teal50
+import com.example.petsaude.ui.theme.Teal500
+import com.example.petsaude.ui.theme.White
+import com.example.petsaude.ui.theme.petFieldColors
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class AddVacinaActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,7 +117,7 @@ class AddVacinaActivity : ComponentActivity() {
         veterinario: String,
         statusAntigo: String?
     ) {
-        val vacina = FBVacina(
+        val vacinaFB = FBVacina(
             id = id,
             petId = pet.id ?: "",
             nomePet = pet.nomePet ?: "",
@@ -85,14 +129,47 @@ class AddVacinaActivity : ComponentActivity() {
             status = if (id.isNullOrBlank()) "Aplicada" else statusAntigo ?: "Aplicada"
         )
 
+        // 1. Salva/Atualiza no Firebase Database
         if (id.isNullOrBlank()) {
-            FBDatabase().addVacina(vacina)
+            FBDatabase().addVacina(vacinaFB)
             Toast.makeText(this, "Vacina cadastrada com sucesso!", Toast.LENGTH_LONG).show()
         } else {
-            FBDatabase().updateVacina(vacina)
+            FBDatabase().updateVacina(vacinaFB)
             Toast.makeText(this, "Vacina atualizada com sucesso!", Toast.LENGTH_LONG).show()
         }
+
+        // 2. Envia uma cópia para a sua API FastAPI no Render (em segundo plano)
+        lifecycleScope.launch {
+            try {
+                val petIdInt = pet.id?.toIntOrNull() ?: 101
+
+                val vacinaApi = VacinaAplicadaApi(
+                    petId = petIdInt,
+                    vacinaNome = nome,
+                    lote = lote.ifBlank { "Sem Lote" },
+                    fabricante = "Não informado",
+                    dataAplicacao = formatarDataParaApi(aplicacao),
+                    dataProximaDose = formatarDataParaApi(proxima),
+                    veterinarioCrmv = veterinario.ifBlank { "Não informado" }
+                )
+
+                RetrofitClient.apiService.registrarVacina(vacinaApi)
+            } catch (_: Exception) {
+                // Silencioso se der erro de rede para não travar a usabilidade do app
+            }
+        }
+
         finish()
+    }
+
+    // Helper para formatar de DD/MM/AAAA para YYYY-MM-DD exigido pelo FastAPI
+    private fun formatarDataParaApi(dataStr: String): String {
+        val partes = dataStr.split("/")
+        return if (partes.size == 3) {
+            "${partes[2]}-${partes[1]}-${partes[0]}"
+        } else {
+            "2026-08-02"
+        }
     }
 }
 
@@ -117,8 +194,26 @@ fun AddVacinaPage(
     var lote by rememberSaveable { mutableStateOf(loteInicial ?: "") }
     var veterinario by rememberSaveable { mutableStateOf(veterinarioInicial ?: "") }
 
-    // 🛠️ ESTADOS DO DROPDOWN DO PET
-    var expanded by remember { mutableStateOf(false) }
+    val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
+
+    // Estado do Catálogo da API FastAPI no Render
+    var catalogoApi by remember { mutableStateOf<List<VacinaCatalogoApi>>(emptyList()) }
+    var showCatalogoMenu by remember { mutableStateOf(false) }
+
+    // Busca o catálogo da sua API assim que a tela abre
+    LaunchedEffect(Unit) {
+        try {
+            val response = RetrofitClient.apiService.getCatalogoVacinas()
+            if (response.isSuccessful) {
+                catalogoApi = response.body() ?: emptyList()
+            }
+        } catch (_: Exception) {
+            // Continua com lista vazia caso esteja sem conexão
+        }
+    }
+
+    // ESTADOS DO DROPDOWN DO PET
+    var expandedPetDropdown by remember { mutableStateOf(false) }
     var petSelecionado by remember {
         mutableStateOf<FBPet?>(
             if (petIdInicial != null) {
@@ -131,11 +226,26 @@ fun AddVacinaPage(
     }
     var listaPets by remember { mutableStateOf(listOf<FBPet>()) }
 
-    // 🛠️ BUSCA OS PETS DO FIREBASE
+    // BUSCA OS PETS DO FIREBASE
     LaunchedEffect(Unit) {
         FBDatabase().getPets {
             listaPets = it
         }
+    }
+
+    // Filtro de sugestões baseadas no que o usuário digitou
+    val sugestoesFiltradas = remember(nome, catalogoApi) {
+        if (nome.isBlank()) catalogoApi else catalogoApi.filter {
+            it.nome.contains(nome, ignoreCase = true)
+        }
+    }
+
+    // Helper interno para somar meses usando Calendar (compatível com todas versões do Android)
+    fun somarMeses(dataBase: Date, meses: Int): String {
+        val cal = Calendar.getInstance()
+        cal.time = dataBase
+        cal.add(Calendar.MONTH, meses)
+        return dateFormat.format(cal.time)
     }
 
     Column(
@@ -145,7 +255,9 @@ fun AddVacinaPage(
             .statusBarsPadding()
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBackClick) {
@@ -169,10 +281,10 @@ fun AddVacinaPage(
             SectionLabel("INFORMAÇÕES DA VACINA")
             Spacer(Modifier.height(12.dp))
 
-            // 🛠️ DROPDOWN DE SELEÇÃO DO PET
+            // DROPDOWN DE SELEÇÃO DO PET
             ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded }
+                expanded = expandedPetDropdown,
+                onExpandedChange = { expandedPetDropdown = !expandedPetDropdown }
             ) {
                 OutlinedTextField(
                     value = petSelecionado?.nomePet ?: "",
@@ -182,13 +294,15 @@ fun AddVacinaPage(
                     placeholder = { Text("Selecione o pet que tomou a vacina") },
                     leadingIcon = { Icon(Icons.Default.Pets, null, tint = Teal500) },
                     trailingIcon = { Icon(Icons.Default.ArrowDropDown, null) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth(),
+                    modifier = Modifier
+                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                        .fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = petFieldColors()
                 )
                 ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    expanded = expandedPetDropdown,
+                    onDismissRequest = { expandedPetDropdown = false }
                 ) {
                     DropdownMenuItem(
                         text = { Text("Selecione o pet que tomou a vacina") },
@@ -200,7 +314,7 @@ fun AddVacinaPage(
                             text = { Text(pet.nomePet ?: "") },
                             onClick = {
                                 petSelecionado = pet
-                                expanded = false
+                                expandedPetDropdown = false
                             }
                         )
                     }
@@ -209,22 +323,79 @@ fun AddVacinaPage(
 
             Spacer(Modifier.height(12.dp))
 
-            OutlinedTextField(
-                value = nome,
-                onValueChange = { nome = it },
-                label = { Text("Nome da Vacina") },
-                leadingIcon = { Icon(Icons.Default.Vaccines, null, tint = Teal500) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = petFieldColors()
-            )
+            // DROPDOWN DO NOME DA VACINA COM AUTOCOMPLETE E PREENCHIMENTO AUTOMÁTICO
+            ExposedDropdownMenuBox(
+                expanded = showCatalogoMenu && sugestoesFiltradas.isNotEmpty(),
+                onExpandedChange = { showCatalogoMenu = !showCatalogoMenu }
+            ) {
+                OutlinedTextField(
+                    value = nome,
+                    onValueChange = {
+                        nome = it
+                        showCatalogoMenu = true
+                    },
+                    label = { Text("Nome da Vacina") },
+                    placeholder = { Text("Ex: V8/V10, Antirrábica...") },
+                    leadingIcon = { Icon(Icons.Default.Vaccines, null, tint = Teal500) },
+                    trailingIcon = { Icon(Icons.Default.ArrowDropDown, null) },
+                    modifier = Modifier
+                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable)
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = petFieldColors()
+                )
+
+                ExposedDropdownMenu(
+                    expanded = showCatalogoMenu && sugestoesFiltradas.isNotEmpty(),
+                    onDismissRequest = { showCatalogoMenu = false }
+                ) {
+                    sugestoesFiltradas.forEach { vacinaItem ->
+                        DropdownMenuItem(
+                            text = {
+                                Column {
+                                    Text(vacinaItem.nome, fontWeight = FontWeight.Bold, color = Navy900)
+                                    Text(vacinaItem.descricao ?: "", fontSize = 11.sp, color = GrayText, maxLines = 1)
+                                }
+                            },
+                            onClick = {
+                                nome = vacinaItem.nome
+                                showCatalogoMenu = false
+
+                                // --- PREENCHIMENTO AUTOMÁTICO DAS DATAS (COMPATÍVEL) ---
+                                val hojeDate = Date()
+                                if (data.isBlank()) {
+                                    data = dateFormat.format(hojeDate)
+                                    proxima = somarMeses(hojeDate, 12)
+                                } else if (proxima.isBlank()) {
+                                    try {
+                                        val parsedData = dateFormat.parse(data.trim())
+                                        if (parsedData != null) {
+                                            proxima = somarMeses(parsedData, 12)
+                                        }
+                                    } catch (_: Exception) {}
+                                }
+                            }
+                        )
+                    }
+                }
+            }
 
             Spacer(Modifier.height(12.dp))
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = data,
-                    onValueChange = { data = it },
+                    onValueChange = { novaData ->
+                        data = novaData
+                        if (novaData.length == 10 && proxima.isBlank()) {
+                            try {
+                                val parsed = dateFormat.parse(novaData)
+                                if (parsed != null) {
+                                    proxima = somarMeses(parsed, 12)
+                                }
+                            } catch (_: Exception) {}
+                        }
+                    },
                     label = { Text("Data Aplicação") },
                     placeholder = { Text("DD/MM/AAAA") },
                     modifier = Modifier.weight(1f),
@@ -235,6 +406,7 @@ fun AddVacinaPage(
                     value = proxima,
                     onValueChange = { proxima = it },
                     label = { Text("Próxima Dose") },
+                    placeholder = { Text("DD/MM/AAAA") },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                     colors = petFieldColors()
@@ -268,12 +440,13 @@ fun AddVacinaPage(
 
             Button(
                 onClick = {
-                    // Garante que o pet, o nome da vacina e a data não estão vazios antes de enviar
                     if (petSelecionado != null && nome.isNotBlank() && data.isNotBlank()) {
                         onSalvarClick(vacinaId, petSelecionado!!, nome, data, proxima, lote, veterinario)
                     }
                 },
-                modifier = Modifier.fillMaxWidth().height(52.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = GreenApplied)
             ) {
