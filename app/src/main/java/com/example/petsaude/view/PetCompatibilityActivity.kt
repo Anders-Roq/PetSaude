@@ -12,7 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -148,7 +148,7 @@ fun DogCompatibilityPage(
                 .padding(horizontal = 28.dp, vertical = 20.dp)
         ) {
             IconButton(onClick = onBackClick) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Navy900)
+                Icon(Icons.Default.ArrowBack, contentDescription = "Voltar", tint = Navy900)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -228,7 +228,7 @@ fun DogCompatibilityPage(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable, enabled = true)
+                        .menuAnchor(MenuAnchorType.PrimaryEditable, enabled = true)
                         .onFocusChanged { if (it.isFocused) mostrarSugestoes = true },
                     singleLine = true,
                     isError = racaInvalida,
@@ -369,11 +369,7 @@ private fun ResultadoCompatibilidadeCachorro(info: RacaCompatibilidade) {
         ItemCompatibilidade("Boa com outros cães", info.boaComOutrosCaes),
         ItemCompatibilidade("Boa com estranhos", info.boaComEstranhos)
     )
-    CardCompatibilidade(
-        nomeRaca = info.nomeRaca,
-        viaCache = info.viaCache,
-        itens = itens
-    )
+    CardCompatibilidade(nomeRaca = info.nomeRaca, viaCache = info.viaCache, itens = itens)
 }
 
 @Composable

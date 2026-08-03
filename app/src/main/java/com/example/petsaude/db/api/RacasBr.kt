@@ -62,7 +62,6 @@ object RacasBr {
         "American Staffordshire Terrier" to "American Staffordshire Terrier",
         "Staffordshire Bull Terrier" to "Staffordshire Bull Terrier",
         "Boiadeiro Australiano" to "Australian Cattle Dog",
-
     )
 
     val nomesEmPortugues: List<String> = racas.keys.toList()

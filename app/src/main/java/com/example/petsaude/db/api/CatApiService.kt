@@ -34,16 +34,15 @@ sealed class ResultadoBuscaGato {
     object ChaveApiAusente : ResultadoBuscaGato()
     data class Erro(val mensagem: String) : ResultadoBuscaGato()
 }
-
 class CatApiService(context: Context) {
 
     private val apiKey = BuildConfig.NINJA_API_KEY
+
     private val prefs = context.applicationContext
         .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     companion object {
         private const val PREFS_NAME = "cat_compat_cache"
-
     }
 
     fun buscarRaca(nomeRaca: String): ResultadoBuscaGato {
@@ -106,8 +105,11 @@ class CatApiService(context: Context) {
             conn?.disconnect()
         }
     }
+
     fun limparCache() {
-        prefs.edit { clear() }
+        prefs.edit {
+            clear()
+        }
     }
 
     private fun traduzirPorte(valorApi: String): String = when (valorApi.trim().lowercase()) {
@@ -158,6 +160,8 @@ class CatApiService(context: Context) {
             put("cuidadosComPelagem", info.cuidadosComPelagem)
             put("saudeGeral", info.saudeGeral)
         }
-        prefs.edit { putString(chave, obj.toString()) }
+        prefs.edit {
+            putString(chave, obj.toString())
+        }
     }
 }

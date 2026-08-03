@@ -9,6 +9,7 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
+import androidx.core.content.edit
 
 data class RacaCompatibilidade(
     val nomeRaca: String,
@@ -98,7 +99,9 @@ class DogApiService(context: Context) {
     }
 
     fun limparCache() {
-        prefs.edit().clear().apply()
+        prefs.edit {
+            clear()
+        }
     }
 
     private fun normalizarChaveCache(nomeEmIngles: String): String =
@@ -136,6 +139,8 @@ class DogApiService(context: Context) {
             put("boaComOutrosCaes", info.boaComOutrosCaes)
             put("boaComEstranhos", info.boaComEstranhos)
         }
-        prefs.edit().putString(chave, obj.toString()).apply()
+        prefs.edit {
+            putString(chave, obj.toString())
+        }
     }
 }

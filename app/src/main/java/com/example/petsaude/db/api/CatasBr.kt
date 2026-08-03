@@ -42,7 +42,6 @@ object CatasBr {
         "Ragamuffin" to "Ragamuffin",
         "Savannah" to "Savannah",
         "Siberiano" to "Siberian",
-        "Singapura" to "Singapura",
     )
 
     val nomesEmPortugues: List<String> = racas.keys.toList()

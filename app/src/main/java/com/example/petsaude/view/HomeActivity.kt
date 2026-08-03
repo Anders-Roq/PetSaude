@@ -14,9 +14,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,9 +35,8 @@ import com.example.petsaude.viewmodel.HomeViewModel
 import com.example.petsaude.viewmodel.HomeViewModelFactory
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
 
 class HomeActivity : ComponentActivity() {
 
@@ -122,7 +123,7 @@ fun HomePage(
                     Icon(Icons.Default.AccountCircle, contentDescription = "Perfil", tint = Navy900)
                 }
                 IconButton(onClick = onLogoutClick) {
-                    Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Sair", tint = Navy900)
+                    Icon(Icons.Default.ExitToApp, contentDescription = "Sair", tint = Navy900)
                 }
             }
         }
@@ -147,9 +148,6 @@ fun HomePage(
                     fontWeight = FontWeight.SemiBold,
                     color = Navy900
                 )
-                TextButton(onClick = {}) {
-                    Text("Ver todos", color = Teal500, fontSize = 13.sp)
-                }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -180,12 +178,13 @@ fun HomePage(
                                     .background(Teal100, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
-                                PetAvatarImage(
-                                    petId = pet.id,
-                                    especie = pet.especie,
+                                AvatarImage(
+                                    chave = "pet_${pet.id}",
                                     tamanho = 60.dp,
                                     shape = RoundedCornerShape(50)
-                                )
+                                ) {
+                                    Text(if (pet.especie == "Gato") "🐈" else "🐕", fontSize = 30.sp)
+                                }
                             }
 
                             Spacer(Modifier.height(8.dp))
@@ -287,13 +286,13 @@ fun HomePage(
     }
 }
 
-//@Composable
-//fun StatItem(number: String, label: String) {
-//    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-//        Text(number, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = White)
-//        Text(label, fontSize = 10.sp, color = White.copy(alpha = 0.8f))
-//    }
-//}
+@Composable
+fun StatItem(number: String, label: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(number, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = White)
+        Text(label, fontSize = 10.sp, color = White.copy(alpha = 0.8f))
+    }
+}
 
 @Composable
 fun MenuCard(

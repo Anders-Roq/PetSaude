@@ -1,14 +1,9 @@
 package com.example.petsaude.view
 
-import android.Manifest
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,8 +28,7 @@ import com.example.petsaude.db.fb.FBDatabase
 import com.example.petsaude.db.fb.toFBPet
 import com.example.petsaude.model.Pet
 import com.example.petsaude.ui.theme.*
-import com.example.petsaude.util.FotoPetStore
-import com.example.petsaude.util.FotoStorage
+import com.example.petsaude.util.FotoStore
 
 class RegisterPetActivity : ComponentActivity() {
 
@@ -104,42 +98,15 @@ fun RegisterPetPage(
     // gera um id agora mesmo (não só ao salvar), pois a foto precisa de um
     // id para ser salva localmente antes do botão "Salvar" ser tocado.
     val petId = remember { petParaEditar?.id ?: java.util.UUID.randomUUID().toString() }
+    val chaveFoto = remember(petId) { "pet_$petId" }
 
     var caminhoFoto by rememberSaveable {
-        mutableStateOf(FotoPetStore.obterCaminho(context, petId))
+        mutableStateOf(FotoStore.obterCaminho(context, chaveFoto))
     }
     var mostrarEscolhaFoto by rememberSaveable { mutableStateOf(false) }
-    var uriCameraTemp by remember { mutableStateOf<Uri?>(null) }
 
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { sucesso ->
-        val uriTemp = uriCameraTemp
-        if (sucesso && uriTemp != null) {
-            val caminhoFinal = FotoStorage.salvarFotoPet(context, petId, uriTemp)
-            FotoPetStore.salvarCaminho(context, petId, caminhoFinal)
-            caminhoFoto = caminhoFinal
-        }
-    }
-
-    val permissaoCameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { concedida ->
-        if (concedida) {
-            val uriTemp = FotoStorage.criarUriTemporariaParaCamera(context)
-            uriCameraTemp = uriTemp
-            cameraLauncher.launch(uriTemp)
-        }
-    }
-
-    val galeriaLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri != null) {
-            val caminhoFinal = FotoStorage.salvarFotoPet(context, petId, uri)
-            FotoPetStore.salvarCaminho(context, petId, caminhoFinal)
-            caminhoFoto = caminhoFinal
-        }
+    val fotoPicker = rememberFotoPickerLaunchers(context, chaveFoto) { novoCaminho ->
+        caminhoFoto = novoCaminho
     }
 
     var nome by rememberSaveable { mutableStateOf(petParaEditar?.nomePet ?: "") }
@@ -201,15 +168,12 @@ fun RegisterPetPage(
                     .clickable { mostrarEscolhaFoto = true },
                 contentAlignment = Alignment.Center
             ) {
-                if (caminhoFoto != null) {
-                    PetAvatarImage(
-                        petId = petId,
-                        especie = especie,
-                        tamanho = 100.dp,
-                        shape = RoundedCornerShape(50.dp),
-                        caminhoFoto = caminhoFoto
-                    )
-                } else {
+                AvatarImage(
+                    chave = chaveFoto,
+                    tamanho = 100.dp,
+                    shape = RoundedCornerShape(50.dp),
+                    caminhoFoto = caminhoFoto
+                ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(if (especie == "Gato") "🐈" else "🐕", fontSize = 38.sp)
                         Text("Foto", fontSize = 10.sp, color = Teal500, fontWeight = FontWeight.Medium)
@@ -465,7 +429,7 @@ fun RegisterPetPage(
             confirmButton = {
                 TextButton(onClick = {
                     mostrarDialogoExcluir = false
-                    FotoPetStore.remover(context, petId)
+                    FotoStore.remover(context, chaveFoto)
                     onDeleteClick(petParaEditar)
                 }) {
                     Text("Remover", color = MaterialTheme.colorScheme.error)
@@ -480,66 +444,16 @@ fun RegisterPetPage(
     }
 
     if (mostrarEscolhaFoto) {
-        AlertDialog(
-            onDismissRequest = { mostrarEscolhaFoto = false },
-            title = { Text("Foto do pet") },
-            text = {
-                Column {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                mostrarEscolhaFoto = false
-                                permissaoCameraLauncher.launch(Manifest.permission.CAMERA)
-                            }
-                            .padding(vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(Icons.Default.PhotoCamera, contentDescription = null, tint = Teal500)
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text("Tirar foto agora")
-                    }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                mostrarEscolhaFoto = false
-                                galeriaLauncher.launch(
-                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                )
-                            }
-                            .padding(vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(Icons.Default.Image, contentDescription = null, tint = Teal500)
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text("Escolher da galeria")
-                    }
-                    if (caminhoFoto != null) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    mostrarEscolhaFoto = false
-                                    FotoPetStore.remover(context, petId)
-                                    caminhoFoto = null
-                                }
-                                .padding(vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error)
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text("Remover foto", color = MaterialTheme.colorScheme.error)
-                        }
-                    }
-                }
+        EscolherFotoDialog(
+            titulo = "Foto do pet",
+            temFotoAtual = caminhoFoto != null,
+            onTirarFoto = fotoPicker.aoTirarFoto,
+            onEscolherGaleria = fotoPicker.aoEscolherGaleria,
+            onRemoverFoto = {
+                FotoStore.remover(context, chaveFoto)
+                caminhoFoto = null
             },
-            confirmButton = {},
-            dismissButton = {
-                TextButton(onClick = { mostrarEscolhaFoto = false }) {
-                    Text("Cancelar")
-                }
-            }
+            onFechar = { mostrarEscolhaFoto = false }
         )
     }
 }

@@ -23,8 +23,8 @@ android {
         val mapsKey = project.findProperty("MAPS_API_KEY")?.toString() ?: ""
         manifestPlaceholders["MAPS_API_KEY"] = mapsKey
 
-        val ninjaApiKey = project.findProperty("NINJA_API_KEY")?.toString() ?: ""
-        buildConfigField("String", "NINJA_API_KEY", "\"$ninjaApiKey\"")
+        val dogsApiKey = project.findProperty("NINJA_API_KEY")?.toString() ?: ""
+        buildConfigField("String", "NINJA_API_KEY", "\"$dogsApiKey\"")
     }
 
     buildTypes {
@@ -61,7 +61,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.exifinterface)
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
