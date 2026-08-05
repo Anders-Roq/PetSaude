@@ -39,7 +39,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -51,12 +50,6 @@ import com.example.petsaude.util.FotoStore
  * Avatar genérico para qualquer entidade do app (pet, usuário, etc.): mostra
  * a foto salva localmente para [chave] se existir, ou o [conteudoPadrao]
  * (ex.: um emoji ou um Icon) como placeholder.
- *
- * [caminhoFoto], quando informado, tem prioridade (usado por quem já
- * controla o valor mais atual em memória, como uma tela de edição). Quando
- * omitido, o caminho é lido do [FotoStore] e relido automaticamente sempre
- * que a tela volta a ficar em primeiro plano (ON_RESUME) — assim, ao voltar
- * de uma tela de edição, o avatar já reflete a foto alterada em outro lugar.
  */
 @Composable
 fun AvatarImage(
@@ -67,7 +60,7 @@ fun AvatarImage(
     conteudoPadrao: @Composable () -> Unit
 ) {
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
     var caminhoAtual by remember(chave, caminhoFoto) {
         mutableStateOf(caminhoFoto ?: FotoStore.obterCaminho(context, chave))
@@ -112,14 +105,6 @@ data class FotoPickerLaunchers(
  * da câmera, launcher da galeria/Photo Picker) para uma [chave] qualquer.
  * Sempre que uma foto é obtida com sucesso, ela já é salva via [FotoStorage]
  * + [FotoStore], e [onFotoAtualizada] é chamado com o novo caminho.
- *
- * Uso típico:
- * ```
- * val fotoPicker = rememberFotoPickerLaunchers(context, chave) { caminho -> ... }
- * // depois, num botão/diálogo:
- * fotoPicker.aoTirarFoto()
- * fotoPicker.aoEscolherGaleria()
- * ```
  */
 @Composable
 fun rememberFotoPickerLaunchers(
